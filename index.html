@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center">Chat Application</h1>
+    <div id="messages" class="border rounded p-3 mb-3" style="height: 300px; overflow-y: scroll;"></div>
+    <div class="input-group">
+      <input type="text" id="msgTxt" class="form-control" placeholder="Type message....">
+      <div class="input-group-append">
+        <button id="msgBtn" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+    import { getDatabase, ref, set, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCoR44C86Owu7JnXHqTQuWg7pFFth7biko",
+      authDomain: "chatapplication-d4b57.firebaseapp.com",
+      projectId: "chatapplication-d4b57",
+      storageBucket: "chatapplication-d4b57.appspot.com",
+      messagingSenderId: "207096079695",
+      appId: "1:207096079695:web:bcbccad21d0e6ad699913a",
+      measurementId: "G-JW0ZRDDH14"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const msgTxt = document.getElementById('msgTxt');
+    const messagesDiv = document.getElementById('messages');
+
+    let sender;
+    if (sessionStorage.getItem('sender')) {
+      sender = sessionStorage.getItem('sender');
+    } else {
+      sender = prompt('Please enter your name');
+      sessionStorage.setItem('sender', sender);
+    }
+
+    document.getElementById('msgBtn').addEventListener('click', () => {
+      const msg = msgTxt.value;
+      if (msg.trim() !== '') {
+        const timestamp = new Date().getTime();
+        set(ref(db, "messages/" + timestamp), {
+          msg: msg,
+          sender: sender
+        });
+        msgTxt.value = '';
+      }
+    });
+
+    const displayMessage = (messageData) => {
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `${messageData.sender}: ${messageData.msg}`;
+      messageElement.className = 'message';
+      if (messageData.sender === sender) {
+        messageElement.classList.add('sent');
+      } else {
+        messageElement.classList.add('received');
+      }
+      messagesDiv.appendChild(messageElement);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    // Load existing messages
+    onValue(ref(db, "messages"), (snapshot) => {
+      messagesDiv.innerHTML = '';
+      snapshot.forEach((childSnapshot) => {
+        const messageData = childSnapshot.val();
+        displayMessage(messageData);
+      });
+    });
+
+    // Listen for new messages
+    onChildAdded(ref(db, "messages"), (snapshot) => {
+      const messageData = snapshot.val();
+      displayMessage(messageData);
+    });
+  </script>
+</body>
+</html>

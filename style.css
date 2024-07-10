@@ -1,0 +1,38 @@
+body {
+    background-color: #f8f9fa;
+  }
+  
+  #messages {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .sendMsg {
+    margin-top: 10px;
+  }
+  
+  .message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    max-width: 75%;
+  }
+  
+  .sent {
+    background-color: #d1e7dd;
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+  .received {
+    background-color: #f8d7da;
+    align-self: flex-start;
+    text-align: left;
+  }
+  
+  #messages {
+    display: flex;
+    flex-direction: column;
+  }
+  
